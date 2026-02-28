@@ -7,7 +7,7 @@ import type {
   GatewayRequestHandler,
   GatewayRequestHandlers,
 } from "../gateway/server-methods/types.js";
-import { registerInternalHook } from "../hooks/internal-hooks.js";
+import { registerInternalHook, type InternalHookHandler } from "../hooks/internal-hooks.js";
 import type { HookEntry } from "../hooks/types.js";
 import { resolveUserPath } from "../utils.js";
 import { registerPluginCommand } from "./commands.js";
@@ -86,6 +86,8 @@ export type PluginHookRegistration = {
   entry: HookEntry;
   events: string[];
   source: string;
+  /** Stored so plugin hooks survive clearInternalHooks() and can be re-registered. */
+  handler?: InternalHookHandler;
 };
 
 export type PluginServiceRegistration = {
@@ -276,6 +278,7 @@ export function createPluginRegistry(registryParams: PluginRegistryParams) {
       entry: hookEntry,
       events: normalizedEvents,
       source: record.source,
+      handler,
     });
 
     const hookSystemEnabled = config?.hooks?.internal?.enabled === true;
